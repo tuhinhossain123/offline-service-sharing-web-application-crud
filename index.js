@@ -36,7 +36,14 @@ async function run() {
       res.send(result)
 
     })
+    app.get('/services/:id', async(req, res)=>{
+      const id = req.params.id;
+      const result =await serviceCollection.findOne({_id: new ObjectId(id)});
+      res.send(result)
 
+    })
+
+    
     app.post('/services', async(req, res)=>{
       console.log(req)
       const user = req.body;
@@ -63,6 +70,13 @@ async function run() {
       const result = await serviceCollection.updateOne(filter, update, option);
       res.send(result)
 
+    })
+
+    app.delete('/services/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query ={_id: new ObjectId(id)};
+      const result = await serviceCollection.deleteOne(query);
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
