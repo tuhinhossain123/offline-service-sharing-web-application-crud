@@ -28,6 +28,7 @@ async function run() {
     await client.connect();
 
     const serviceCollection =client.db('offlineService').collection('services');
+    const bookingCollection =client.db('offlineService').collection('booking');
 
 
     app.get('/services', async(req, res)=>{
@@ -51,6 +52,14 @@ async function run() {
       res.send(result)
     })
 
+    // booking
+    app.post('/booking', async(req, res)=>{
+      console.log(req)
+      const user = req.body;
+      const result =await bookingCollection.insertOne(user);
+      res.send(result)
+    })
+
     app.put('/services/:id', async(req, res)=>{
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)};
@@ -59,8 +68,8 @@ async function run() {
       const update ={
         $set:{
           name : updateUser.name,
-          email : updateUser.email,
           url : updateUser.url,
+          providerEmail : updateUser.providerEmail,
           serviceName : updateUser.serviceName,
           price : updateUser.price,
           serviceArea : updateUser.serviceArea,
@@ -71,6 +80,7 @@ async function run() {
       res.send(result)
 
     })
+
 
     app.delete('/services/:id', async(req, res)=>{
       const id = req.params.id;
