@@ -37,6 +37,24 @@ async function run() {
       res.send(result)
 
     })
+    // booking
+    app.get('/booking', async(req, res)=>{
+      const cursor = bookingCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+
+    })
+
+    app.get('/booking/:email', async(req, res)=>{
+      const email = req.params.email;
+      console.log(req)
+      console.log(email)
+      const cursor = bookingCollection.find({providerEmail:email});
+      const result = await cursor.toArray();
+      res.send(result)
+
+    })
+
     app.get('/services/:id', async(req, res)=>{
       const id = req.params.id;
       const result =await serviceCollection.findOne({_id: new ObjectId(id)});
@@ -56,6 +74,7 @@ async function run() {
     app.post('/booking', async(req, res)=>{
       console.log(req)
       const user = req.body;
+      console.log(user)
       const result =await bookingCollection.insertOne(user);
       res.send(result)
     })
