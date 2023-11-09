@@ -2,6 +2,7 @@ const express = require('express')
 const cors =require ('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const cookieParser=require('cookie-parser')
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -13,6 +14,7 @@ app.use(cors({
 
 }))
 app.use(express.json());
+app.use(cookieParser())
 
 
 
@@ -26,6 +28,28 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+// middleWare
+const logger =async(req, res, next)=>{
+  console.log('log:info',req.method, req.url);
+  next()
+}
+
+const verifyToken =async(req, res, next)=>{
+  const token = req.cookies?.token;
+  // console.log('value of token in middleware', token);
+  if(!token){
+    return res.status(401).send({message: 'unauthorized access'})
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decode)=>{
+    if(err){
+      return res.status(401).send({message: 'unauthorized access'})
+    }
+    req.user=decode;
+    next();
+  })
+ 
+}
 
 async function run() {
   try {
@@ -46,6 +70,12 @@ async function run() {
       }).send({success: true})
     } )
 
+    app.post('/logout', async(req, res)=>{
+      const user = req.body;
+      console.log('logging out', user)
+      res.clearCookie('token', {maxAge: 0}).send({success: true})
+    })
+
     
 
 
@@ -58,7 +88,8 @@ async function run() {
 
     })
     // booking
-    app.get('/booking', async(req, res)=>{
+    app.get('/booking', logger, async(req, res)=>{
+      console.log('cook cook cookies',req.cookies)
       const cursor = bookingCollection.find();
       const result = await cursor.toArray();
       res.send(result)
