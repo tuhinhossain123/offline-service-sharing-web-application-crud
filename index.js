@@ -88,8 +88,12 @@ async function run() {
 
     })
     // booking
-    app.get('/booking', logger, async(req, res)=>{
-      console.log('cook cook cookies',req.cookies)
+    app.get('/booking', logger, verifyToken, async(req, res)=>{
+      console.log(req.query.email)
+      console.log('token owner info',req.user)
+      if(req.user?.email !== req.query.email){
+        return res.status(403).send({message: 'forbidden access'})
+      }
       const cursor = bookingCollection.find();
       const result = await cursor.toArray();
       res.send(result)
