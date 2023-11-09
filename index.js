@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 
 // middle ware
 app.use(cors({
-  origin:['http://localhost:5173'],
+  origin:['http://localhost:5173', 'https://local-tours-and-guide.web.app', 'https://local-tours-and-guide.firebaseapp.com'],
   credentials:true
 
 }))
@@ -54,7 +54,7 @@ const verifyToken =async(req, res, next)=>{
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const serviceCollection =client.db('offlineService').collection('services');
     const bookingCollection =client.db('offlineService').collection('booking');
@@ -66,7 +66,8 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: 1});
       res.cookie('token', token,{
         httpOnly: true,
-        secure: false
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       }).send({success: true})
     } )
 
