@@ -47,9 +47,14 @@ async function run() {
 
     app.get('/booking/:email', async(req, res)=>{
       const email = req.params.email;
-      console.log(req)
-      console.log(email)
-      const cursor = bookingCollection.find({providerEmail:email});
+      const cursor =  bookingCollection.find({userEmail:email});
+      const result = await cursor.toArray();
+      res.send(result)
+
+    })
+    app.get('/pendingWork/:email', async(req, res)=>{
+      const email = req.params.email;
+      const cursor =  bookingCollection.find({provider_email:email});
       const result = await cursor.toArray();
       res.send(result)
 
@@ -79,7 +84,7 @@ async function run() {
       res.send(result)
     })
 
-    app.put('/services/:id', async(req, res)=>{
+    app.patch('/services/:id', async(req, res)=>{
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)};
       const option = {upsert: true};
@@ -87,15 +92,15 @@ async function run() {
       const update ={
         $set:{
           name : updateUser.name,
-          url : updateUser.url,
-          providerEmail : updateUser.providerEmail,
-          serviceName : updateUser.serviceName,
-          price : updateUser.price,
-          serviceArea : updateUser.serviceArea,
-          description : updateUser.description,
+          email : updateUser.email,
+          service_img : updateUser.service_img,
+          service_name : updateUser.service_name,
+          service_price : updateUser.service_price,
+          service_area : updateUser.service_area,
+          service_des : updateUser.service_des,
         }
       }
-      const result = await serviceCollection.updateOne(filter, update, option);
+      const result = await serviceCollection.updateMany(filter, update, option);
       res.send(result)
 
     })
