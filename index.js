@@ -40,12 +40,6 @@ async function run() {
     });
 
     // manage services related api
-    app.post("/manage", async (req, res) => {
-      console.log(req);
-      const user = req.body;
-      const result = await manageCollection.insertOne(user);
-      res.send(result);
-    });
 
     app.get("/manage", async (req, res) => {
       const cursor = manageCollection.find();
@@ -59,6 +53,49 @@ async function run() {
         provider_email: email,
       });
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/manageId/:id", async (req, res) => {
+      const id = req.params.id;
+      const cursor = await manageCollection.findOne({
+        _id: new ObjectId(id),
+      });
+      // const result = await cursor.toArray();
+      res.send(cursor);
+    });
+
+    app.post("/manage", async (req, res) => {
+      console.log(req);
+      const user = req.body;
+      const result = await manageCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.delete("/manage/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await manageCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.patch("/manage/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateUser = req.body;
+      const update = {
+        $set: {
+          name: updateUser.name,
+          email: updateUser.email,
+          service_img: updateUser.service_img,
+          service_name: updateUser.service_name,
+          service_price: updateUser.service_price,
+          service_area: updateUser.service_area,
+          service_des: updateUser.service_des,
+        },
+      };
+      const result = await manageCollection.updateMany(filter, update, option);
       res.send(result);
     });
 
@@ -97,32 +134,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/services/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const option = { upsert: true };
-      const updateUser = req.body;
-      const update = {
-        $set: {
-          name: updateUser.name,
-          email: updateUser.email,
-          service_img: updateUser.service_img,
-          service_name: updateUser.service_name,
-          service_price: updateUser.service_price,
-          service_area: updateUser.service_area,
-          service_des: updateUser.service_des,
-        },
-      };
-      const result = await serviceCollection.updateMany(filter, update, option);
-      res.send(result);
-    });
-
-    app.delete("/services/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await serviceCollection.deleteOne(query);
-      res.send(result);
-    });
+   
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
